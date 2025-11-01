@@ -1,4 +1,4 @@
-# <img src="favicon.png" alt="Astra Favicon" width="64" height="64" style="background: none;">
+# <img src="favicon.png" alt="Astra Favicon" width="512" height="512" style="background: none;">
 # ASTRA
 
 ASTRA ("Astra") — the name suggests both a star and a weapon. We are a small team focused on building great things together.
