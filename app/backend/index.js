@@ -116,48 +116,64 @@ mongoose.connect(MONGODB_URI, {
     const users = await User.countDocuments();
     if (users === 0) {
       const passwordHash = await bcrypt.hash('password123', 10);
-      const admin = await User.create({
+      await User.create({
         name: 'Admin User',
         email: 'admin@campushive.local',
         password: passwordHash,
         role: 'admin',
         department: 'Administration'
       });
+      console.log('✅ Default admin user created');
+    }
+    
+    // Always ensure clubs exist
+    const clubCount = await Club.countDocuments();
+    if (clubCount === 0) {
+      const adminUser = await User.findOne({ role: 'admin' });
       const club1 = await Club.create({
         name: 'Tech Club',
         description: 'Exploring technology and building cool projects',
-        createdBy: admin._id,
-        admins: [admin._id],
+        createdBy: adminUser._id,
+        admins: [adminUser._id],
         tags: ['technology', 'coding']
       });
       const club2 = await Club.create({
         name: 'Art Circle',
         description: 'Painting, sketching, and creativity',
-        createdBy: admin._id,
-        admins: [admin._id],
+        createdBy: adminUser._id,
+        admins: [adminUser._id],
         tags: ['art', 'creativity']
       });
-      await Event.create([
-        { title: 'Welcome Meetup', description: 'Kickoff event', date: new Date(Date.now()+86400000), location: 'Auditorium', createdBy: admin._id, club: club1._id },
-        { title: 'Art Exhibition', description: 'Showcase talents', date: new Date(Date.now()+172800000), location: 'Gallery', createdBy: admin._id, club: club2._id }
-      ]);
+      console.log('✅ Default clubs created');
       
-      // Create 2 mock exam announcements
+      // Create events for the clubs
+      await Event.create([
+        { title: 'Welcome Meetup', description: 'Kickoff event', date: new Date(Date.now()+86400000), location: 'Auditorium', createdBy: adminUser._id, club: club1._id },
+        { title: 'Art Exhibition', description: 'Showcase talents', date: new Date(Date.now()+172800000), location: 'Gallery', createdBy: adminUser._id, club: club2._id }
+      ]);
+      console.log('✅ Default events created');
+    }
+    
+    // Always ensure exam announcements exist
+    const announcementCount = await Announcement.countDocuments();
+    if (announcementCount === 0) {
+      const adminUser = await User.findOne({ role: 'admin' });
       await Announcement.create([
         { 
           title: 'Mid-Term Examinations - December 2025', 
           content: 'Mid-term exams will be held from December 15-20, 2025. Please review the exam schedule posted on the notice board. Students must carry their ID cards and arrive 15 minutes before the exam starts. Good luck!',
-          createdBy: admin._id
+          createdBy: adminUser._id
         },
         { 
           title: 'Final Semester Examinations - January 2026', 
           content: 'Final semester exams are scheduled for January 10-25, 2026. Exam hall allocation and seat numbers will be announced one week prior. Students should check their exam admit cards on the student portal. Prepare well!',
-          createdBy: admin._id
+          createdBy: adminUser._id
         }
       ]);
-      
-      console.log('Auto-seed complete: default admin, clubs, events, and exam announcements created.');
+      console.log('✅ Default exam announcements created');
     }
+    
+    console.log('🌱 Auto-seed check complete');
     
     // Always ensure the special ASTRA admin account exists
     const astraAdminEmail = process.env.ADMIN_EMAIL || 'astra.campushive@gmail.com';
