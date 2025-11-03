@@ -3,25 +3,25 @@ import dotenv from 'dotenv';
 
 dotenv.config();
 
-// Check if email credentials are configured
-const EMAIL_USER = process.env.EMAIL_USER;
-const EMAIL_PASS = process.env.EMAIL_PASS;
-const emailConfigured = EMAIL_USER && EMAIL_PASS;
+// Brevo (formerly Sendinblue) SMTP configuration
+// Free tier: 300 emails/day, no credit card required
+// Sign up at: https://www.brevo.com
+const BREVO_SMTP_LOGIN = process.env.BREVO_SMTP_LOGIN;
+const BREVO_SMTP_KEY = process.env.BREVO_SMTP_KEY;
+const EMAIL_FROM = process.env.EMAIL_FROM || 'noreply@campushive.app';
+const emailConfigured = BREVO_SMTP_LOGIN && BREVO_SMTP_KEY;
 
 // Create reusable transporter only if credentials are available
 let transporter = null;
 
 if (emailConfigured) {
   transporter = nodemailer.createTransport({
-    host: 'smtp.gmail.com',
+    host: 'smtp-relay.brevo.com',
     port: 587,
-    secure: false, // true for 465, false for other ports
+    secure: false, // Use STARTTLS
     auth: {
-      user: EMAIL_USER,
-      pass: EMAIL_PASS, // Use App Password for Gmail
-    },
-    tls: {
-      rejectUnauthorized: false, // Allow self-signed certificates (for development)
+      user: BREVO_SMTP_LOGIN,
+      pass: BREVO_SMTP_KEY,
     },
     connectionTimeout: 10000, // 10 seconds
     greetingTimeout: 10000,
@@ -32,14 +32,14 @@ if (emailConfigured) {
   transporter.verify((error, success) => {
     if (error) {
       console.error('❌ Email service configuration error:', error.message);
-      console.log('💡 Check that EMAIL_USER and EMAIL_PASS are correct in .env file');
-      console.log('💡 If on Render/cloud: SMTP may be blocked. Consider using SendGrid or Mailgun instead.');
+      console.log('💡 Get free SMTP key from: https://app.brevo.com/settings/keys/smtp');
     } else {
-      console.log('✅ Email service ready');
+      console.log('✅ Email service ready (Brevo - 300 emails/day free)');
     }
   });
 } else {
-  console.warn('⚠️  Email service not configured. Add EMAIL_USER and EMAIL_PASS to .env file to enable email notifications.');
+  console.warn('⚠️  Email service not configured. Add BREVO_SMTP_KEY to .env file.');
+  console.log('💡 Sign up free at https://www.brevo.com (no credit card required)');
 }
 
 /**
@@ -52,7 +52,7 @@ export async function sendTaskDeadlineEmail(userEmail, userName, task) {
   }
   
   const mailOptions = {
-    from: `"CampusHive" <${EMAIL_USER}>`,
+    from: EMAIL_FROM,
     to: userEmail,
     subject: `⏰ Task Deadline Reminder: ${task.title}`,
     html: `
@@ -101,7 +101,7 @@ export async function sendTaskDeadlineEmail(userEmail, userName, task) {
  */
 export async function sendEventRegistrationEmail(userEmail, userName, event) {
   const mailOptions = {
-    from: `"CampusHive" <${process.env.EMAIL_USER}>`,
+    from: EMAIL_FROM,
     to: userEmail,
     subject: `✅ Event Registration Confirmed: ${event.title}`,
     html: `
@@ -154,7 +154,7 @@ export async function sendEventRegistrationEmail(userEmail, userName, event) {
  */
 export async function sendLibraryCheckoutEmail(userEmail, userName, bookDetails, checkout) {
   const mailOptions = {
-    from: `"CampusHive Library" <${process.env.EMAIL_USER}>`,
+    from: EMAIL_FROM,
     to: userEmail,
     subject: `📚 Book Checked Out: ${bookDetails.title}`,
     html: `
@@ -217,7 +217,7 @@ export async function sendLibraryCheckoutEmail(userEmail, userName, bookDetails,
  */
 export async function sendTaskCreatedEmail(userEmail, userName, task) {
   const mailOptions = {
-    from: `"CampusHive" <${process.env.EMAIL_USER}>`,
+    from: EMAIL_FROM,
     to: userEmail,
     subject: `✅ Task Created: ${task.title}`,
     html: `
