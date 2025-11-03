@@ -15,6 +15,7 @@ import adminRoutes from './routes/admin.js';
 import clubRoutes from './routes/club.js';
 import eventRoutes from './routes/event.js';
 import announcementRoutes from './routes/announcement.js';
+import examRoutes from './routes/exam.js';
 import feedbackRoutes from './routes/feedback.js';
 import lostAndFoundRoutes from './routes/lostandfound.js';
 import notificationRoutes from './routes/notification.js';
@@ -40,6 +41,7 @@ import { sendTaskDeadlineEmail } from './services/emailService.js';
 import User from './models/User.js';
 import Club from './models/Club.js';
 import Announcement from './models/Announcement.js';
+import Exam from './models/Exam.js';
 
 // App setup
 const app = express();
@@ -57,6 +59,7 @@ app.use('/api/admin', adminRoutes);
 app.use('/api/club', clubRoutes);
 app.use('/api/events', eventRoutes);
 app.use('/api/announcements', announcementRoutes);
+app.use('/api/exams', examRoutes);
 app.use('/api/feedback', feedbackRoutes);
 app.use('/api/lostandfound', lostAndFoundRoutes);
 app.use('/api/notifications', notificationRoutes);
@@ -154,23 +157,33 @@ mongoose.connect(MONGODB_URI, {
       console.log('✅ Default events created');
     }
     
-    // Always ensure exam announcements exist
-    const announcementCount = await Announcement.countDocuments();
-    if (announcementCount === 0) {
+    // Always ensure exams exist
+    const examCount = await Exam.countDocuments();
+    if (examCount === 0) {
       const adminUser = await User.findOne({ role: 'admin' });
-      await Announcement.create([
+      await Exam.create([
         { 
-          title: 'Mid-Term Examinations - December 2025', 
-          content: 'Mid-term exams will be held from December 15-20, 2025. Please review the exam schedule posted on the notice board. Students must carry their ID cards and arrive 15 minutes before the exam starts. Good luck!',
+          title: 'Mid-Term Examinations', 
+          description: 'Mid-term exams will be held from December 15-20, 2025. Please review the exam schedule posted on the notice board. Students must carry their ID cards and arrive 15 minutes before the exam starts. Good luck!',
+          examDate: new Date('2025-12-15'),
+          endDate: new Date('2025-12-20'),
+          subject: 'All Subjects',
+          venue: 'Main Examination Hall',
+          instructions: 'Carry ID cards. Arrive 15 minutes early. No electronic devices allowed.',
           createdBy: adminUser._id
         },
         { 
-          title: 'Final Semester Examinations - January 2026', 
-          content: 'Final semester exams are scheduled for January 10-25, 2026. Exam hall allocation and seat numbers will be announced one week prior. Students should check their exam admit cards on the student portal. Prepare well!',
+          title: 'Final Semester Examinations', 
+          description: 'Final semester exams are scheduled for January 10-25, 2026. Exam hall allocation and seat numbers will be announced one week prior. Students should check their exam admit cards on the student portal. Prepare well!',
+          examDate: new Date('2026-01-10'),
+          endDate: new Date('2026-01-25'),
+          subject: 'All Subjects',
+          venue: 'TBA',
+          instructions: 'Check admit cards on student portal. Hall allocation announced one week prior.',
           createdBy: adminUser._id
         }
       ]);
-      console.log('✅ Default exam announcements created');
+      console.log('✅ Default exams created');
     }
     
     console.log('🌱 Auto-seed check complete');
