@@ -207,7 +207,7 @@ export default function Register() {
               <>
                 <div className="alert alert-info">
                   <small>
-                    Student account gives you access to clubs, events, attendance tracking, and academic resources.
+                    Student account gives you access to clubs, events, and academic resources.
                   </small>
                 </div>
                 <div className="row mb-3">

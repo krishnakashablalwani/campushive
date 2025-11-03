@@ -53,24 +53,9 @@ export default function About() {
       desc: "Monitor your progress across different subjects",
     },
     {
-      icon: "bi-clipboard-check",
-      title: "Attendance",
-      desc: "Track your attendance records",
-    },
-    {
-      icon: "bi-wallet2",
-      title: "Fee Tracker",
-      desc: "Manage and monitor fee payments",
-    },
-    {
       icon: "bi-search",
       title: "Lost & Found",
       desc: "Report and find lost items on campus",
-    },
-    {
-      icon: "bi-file-earmark-text",
-      title: "PYQ Papers",
-      desc: "Access previous year question papers",
     },
     {
       icon: "bi-chat-dots",
@@ -112,7 +97,7 @@ export default function About() {
         <p className="lead text-muted">Your Unified Hub for Campus Life</p>
         <div className="d-flex justify-content-center gap-3 mt-3">
           <span className="badge bg-primary px-3 py-2">v1.0.0</span>
-          <span className="badge bg-success px-3 py-2">26+ Features</span>
+          <span className="badge bg-success px-3 py-2">20+ Features</span>
           <span className="badge bg-info px-3 py-2">AI-Powered</span>
         </div>
       </div>
