@@ -10,7 +10,12 @@ const userSchema = new mongoose.Schema({
   // Profile additions
   dob: { type: Date },
   bloodGroup: { type: String }, // e.g., 'A+', 'B-', free text for flexibility
+  // Avatar persisted in DB to avoid relying on ephemeral filesystem in deployments
   avatarUrl: { type: String },
+  avatar: {
+    data: Buffer,
+    contentType: String,
+  },
   
   // Student-specific fields
   rollNo: { type: String, unique: true, sparse: true },
