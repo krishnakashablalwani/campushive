@@ -37,12 +37,20 @@ export default function Profile() {
           throw err;
         }
       }
+      // Safely parse DOB for date input (avoid Invalid time value errors)
+      let dobStr = "";
+      if (u.dob) {
+        const d = new Date(u.dob);
+        if (!isNaN(d.getTime())) {
+          dobStr = d.toISOString().substring(0, 10);
+        }
+      }
       setForm({
         name: u.name || "",
         email: u.email || "",
         phone: u.phone || "",
         department: u.department || "",
-        dob: u.dob ? new Date(u.dob).toISOString().substring(0, 10) : "",
+        dob: dobStr,
         bloodGroup: u.bloodGroup || "",
       });
       setAvatarUrl(u.avatarUrl || "");

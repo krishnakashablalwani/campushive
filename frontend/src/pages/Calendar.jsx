@@ -45,9 +45,14 @@ export default function Calendar() {
     const title = encodeURIComponent(item.title);
     const description = encodeURIComponent(item.description || '');
     const location = encodeURIComponent(item.location || '');
-    const date = new Date(item.date);
-    const dateStr = date.toISOString().replace(/-|:|\.\d+/g, '');
-    
+    // Events use `date`; Exams use `examDate`
+    const dateLike = type === 'exam' ? item.examDate || item.date : item.date;
+    const d = new Date(dateLike);
+    if (isNaN(d.getTime())) {
+      alert('This item has an invalid date and cannot be added to calendar.');
+      return;
+    }
+    const dateStr = d.toISOString().replace(/-|:|\.\d+/g, '');
     const url = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${title}&dates=${dateStr}/${dateStr}&details=${description}&location=${location}`;
     window.open(url, '_blank');
   };
@@ -73,8 +78,14 @@ export default function Calendar() {
   const getEventsForDate = (date) => {
     if (!date) return [];
     const dateStr = date.toDateString();
-    const dayEvents = events.filter(e => new Date(e.date).toDateString() === dateStr);
-    const dayExams = exams.filter(e => new Date(e.date).toDateString() === dateStr);
+    const dayEvents = events.filter(e => {
+      const d = new Date(e.date);
+      return !isNaN(d.getTime()) && d.toDateString() === dateStr;
+    });
+    const dayExams = exams.filter(e => {
+      const d = new Date(e.examDate || e.date);
+      return !isNaN(d.getTime()) && d.toDateString() === dateStr;
+    });
     return [...dayEvents.map(e => ({ ...e, type: 'event' })), ...dayExams.map(e => ({ ...e, type: 'exam' }))];
   };
 
@@ -244,7 +255,7 @@ export default function Calendar() {
                         <div className="flex-grow-1">
                           <h6 className="mb-1">{exam.title}</h6>
                           <small style={{color: 'var(--nectar-text-secondary)'}}>
-                            {new Date(exam.date).toLocaleDateString()}
+                            {(() => { const dd = new Date(exam.examDate || exam.date); return !isNaN(dd.getTime()) ? dd.toLocaleDateString() : 'Invalid date'; })()}
                             {exam.time && (
                               <span className="ms-2">
                                 {exam.time}
